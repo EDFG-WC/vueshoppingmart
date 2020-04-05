@@ -38,14 +38,16 @@
 </template>
 
 <script>
+import Vue from 'vue'
+
 export default {
   name: 'Login',
   data () {
     return {
       // 登陆账号密码数据对象:
       loginForm: {
-        username: '',
-        password: ''
+        username: 'admin',
+        password: '123456'
       },
       // 表单验证规则对象:
       loginFormRules: {
@@ -68,9 +70,26 @@ export default {
       this.$refs.loginFormRef.resetFields()
     },
     login () {
-      // valid是登陆验证结果的布尔值, true代表成功
-      this.$refs.loginFormRef.validate(valid => {
-        if (valid) {}
+      // valid是登陆验证结果的布尔值, true代表成功.
+      // 加async和await之后, 就可以只取promise中对我们有用的data
+      // 再进一步, {data: result}之后, 只取data里有用的部分
+      this.$refs.loginFormRef.validate(async valid => {
+        if (valid) {
+          const { data: result } = await Vue.axios.post(
+            'login',
+            this.loginForm
+          )
+          console.log(result)
+          if (result.meta.status !== 200) { return this.$message.error('登陆失败!') }
+          this.$message.success('登陆成功!')
+
+          // 1.将登陆成功之后的token保存到客户端的sessionStorage(回话期间的存储机制)中
+          // 1.1 项目中除了登陆之外的其他api接口, 必须在登陆之后才能访问
+          // 1.2 token只应在当前网站打开期间生效, 所以将token保存在sessionStorage中
+          window.sessionStorage.setItem('token', result.data.token)
+          // 2. 通过编程式导航跳转到后台主页, 路由地址是/home
+          this.$router.push('/home')
+        }
       })
     }
   }
