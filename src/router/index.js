@@ -43,7 +43,12 @@ router.beforeEach((to, from, next) => {
   // 有token, tokenStr是true, 没有是false.
   const tokenStr = window.sessionStorage.getItem('token')
   console.log(!tokenStr)
-  if (tokenStr) return next('/login')
+  // 没有token直接跳转到login
+  if (!tokenStr) {
+    return next('/login')
+  } else {
+    next()
+  }
 })
 // 3.创建router实例
 export default router
