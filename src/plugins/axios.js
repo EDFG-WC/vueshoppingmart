@@ -20,7 +20,9 @@ const _axios = axios.create(config)
 // 2.1 请求拦截:
 _axios.interceptors.request.use(
   function (config) {
-    // Do something before request is sent
+    // 挂载token:
+    config.headers.Authorization = window.sessionStorage.getItem('token')
+    console.log(config)
     return config
   },
   function (error) {
@@ -60,4 +62,4 @@ Plugin.install = function (Vue, options) {
 
 Vue.use(Plugin)
 
-export default Plugin
+export default { Plugin }

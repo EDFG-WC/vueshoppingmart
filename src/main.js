@@ -8,6 +8,7 @@ import './plugins/element.js'
 import './assets/css/global.css'
 // 导入字体图标
 import './assets/fonts/iconfont.css'
+
 // 导入
 Vue.config.productionTip = false
 
