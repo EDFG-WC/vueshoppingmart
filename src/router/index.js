@@ -46,7 +46,6 @@ router.beforeEach((to, from, next) => {
   if (to.path === '/login') return next()
   // 有token, tokenStr是true, 没有是false.
   const tokenStr = window.sessionStorage.getItem('token')
-  console.log(!tokenStr)
   // 没有token直接跳转到login
   if (!tokenStr) {
     return next('/login')

@@ -22,7 +22,6 @@ _axios.interceptors.request.use(
   function (config) {
     // 挂载token:
     config.headers.Authorization = window.sessionStorage.getItem('token')
-    console.log(config)
     return config
   },
   function (error) {

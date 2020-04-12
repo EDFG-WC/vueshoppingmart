@@ -90,7 +90,6 @@ export default {
       const { data: res } = await this.$axios.get('menus')
       if (res.meta.status !== 200) return this.$message.error(res.meta.msg)
       this.menuList = res.data
-      console.log(res)
     },
     toggleCollapse () {
       this.isCollapse = !this.isCollapse

@@ -13,8 +13,8 @@
       <!--      </div>-->
       <el-row :gutter="20">
         <el-col :span="8">
-          <el-input placeholder="请输入内容">
-            <el-button slot="append" icon="el-icon-search"></el-button>
+          <el-input placeholder="请输入内容" v-model="queryInfo.query" clearable @clear="getUserList">
+            <el-button slot="append" icon="el-icon-search" @click="getUserList"></el-button>
           </el-input>
         </el-col>
         <el-col :span="4">
@@ -23,27 +23,27 @@
       </el-row>
       <!-- 用户列表区 -->
       <el-table :data="userList" border stripe>
-        <el-table-column type="index" label="No."></el-table-column>
-        <el-table-column prop="username" label="姓名" width="180">
+        <el-table-column type="index" label="No." min-width="10%"></el-table-column>
+        <el-table-column prop="username" label="姓名" min-width="15%">
         </el-table-column>
-        <el-table-column prop="email" label="邮箱" width="180">
+        <el-table-column prop="email" label="邮箱" min-width="15%">
         </el-table-column>
-        <el-table-column prop="mobile" label="电话" width="180">
+        <el-table-column prop="mobile" label="电话" min-width="15%">
         </el-table-column>
-        <el-table-column prop="role_name" label="角色" width="180">
+        <el-table-column prop="role_name" label="角色" min-width="15%">
         </el-table-column>
-        <el-table-column label="状态" width="180">
+        <el-table-column label="状态" min-width="15%">
           <template slot-scope="scope">
             <el-switch
               v-model="scope.row.mg_state"
               active-color="#13ce66"
-              inactive-color="#ff4949">
+              inactive-color="#ff4949"
+            @change="userStateChange(scope.row)">
             </el-switch>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="180">
+        <el-table-column label="操作" min-width="15%" >
           <template >
-            <button_group>
               <!-- 修改按钮 -->
               <el-button type="primary" icon="el-icon-edit" size="mini"></el-button>
               <!-- 删除 -->
@@ -52,7 +52,6 @@
               <el-tooltip effect="dark" content="分配角色" placement="top" :enterable="false">
                 <el-button type="warning" icon="el-icon-setting" size="mini" ></el-button>
               </el-tooltip>
-            </button_group>
           </template>
         </el-table-column>
       </el-table>
@@ -101,35 +100,27 @@ export default {
     },
     // 监听pagesize改变的事件
     handleSizeChange (newSize) {
-      console.log(newSize)
       this.queryInfo.pagesize = newSize
       this.getUserList()
     },
     // 监听页码改变的事件
     handleCurrentChange (currentPage) {
-      console.log(currentPage)
       this.queryInfo.pagenum = currentPage
       this.getUserList()
+    },
+    // 监听switch开关状态的改变
+    async userStateChange (userInfo) {
+      const { data: res } = this.$axios.put(`users/${userInfo.id}/state/${userInfo.mg_state}`)
+      if (res.meta.status !== 200 || res === null) {
+        userInfo.mg_state = !userInfo.mg_state
+        return this.$message.error('更新用户状态失败!')
+      }
+      this.$message.success('更新用户状态成功!')
     }
   }
 }
 </script>
 
 <style lang="less" scoped>
-.text {
-  font-size: 12px;
-}
 
-.item {
-  padding: 18px 0;
-}
-
-.el-card {
-  margin-top: 15px;
-  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15) !important;
-}
-.el-table {
-  margin-top: 15px;
-  font-size: 12px;
-}
 </style>
