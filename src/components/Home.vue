@@ -21,6 +21,8 @@
             :unique-opened="true"
             :collapse="isCollapse"
             :collapse-transition="false"
+            router
+            :default-active="getCurrentNavePath"
           >
             <!-- 1级菜单 -->
             <el-submenu
@@ -37,9 +39,10 @@
               </template>
               <!-- 2级菜单 -->
               <el-menu-item
-                :index="subItem.id + ''"
+                :index="'/' + item.path"
                 v-for="subItem in item.children"
                 :key="subItem.id"
+                @click="saveNaveState('/'+subItem.path)"
               >
                 <!-- 2级菜单模版区-->
                 <template slot="title">
@@ -53,13 +56,15 @@
           </el-menu>
         </el-aside>
         <!--右侧内容主体-->
-        <el-main>Main</el-main>
+        <el-main><router-view></router-view></el-main>
       </el-container>
     </el-container>
   </div>
 </template>
 
 <script>
+import { GET_ACVTIVE_STATE } from '../store/mutation-types'
+
 export default {
   name: 'Home',
   data () {
@@ -72,7 +77,8 @@ export default {
         102: 'iconfont icon-danju',
         145: 'iconfont icon-baobiao'
       },
-      isCollapse: true
+      isCollapse: true,
+      currentNavePath: ''
     }
   },
   methods: {
@@ -88,6 +94,14 @@ export default {
     },
     toggleCollapse () {
       this.isCollapse = !this.isCollapse
+    },
+    saveNaveState (activePath) {
+      this.$store.commit(GET_ACVTIVE_STATE, activePath)
+    }
+  },
+  computed: {
+    getCurrentNavePath () {
+      return this.$store.state.activeNavState
     }
   },
   created () {

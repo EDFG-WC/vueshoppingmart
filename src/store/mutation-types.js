@@ -1,0 +1,1 @@
+export const GET_ACVTIVE_STATE = 'GET_ACVTIVE_STATE'
