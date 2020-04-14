@@ -22,7 +22,9 @@ import {
   TableColumn,
   Switch,
   Tooltip,
-  Pagination
+  Pagination,
+  Dialog,
+  MessageBox
 } from 'element-ui'
 
 Vue.use(Button)
@@ -47,6 +49,8 @@ Vue.use(TableColumn)
 Vue.use(Switch)
 Vue.use(Tooltip)
 Vue.use(Pagination)
+Vue.use(Dialog)
 
 // 挂载在全局的组件只要调用$message就可以使用了
 Vue.prototype.$message = Message
+Vue.prototype.$confirm = MessageBox.confirm
