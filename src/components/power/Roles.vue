@@ -41,7 +41,8 @@
                       type="success"
                       closable
                       @close="removeRightById(scope.row, item2.id)"
-                      >{{ item2.authName }}</el-tag
+                    >{{ item2.authName }}
+                    </el-tag
                     >
                     <i class="el-icon-caret-right"></i>
                   </el-col>
@@ -53,7 +54,7 @@
                       :key="item3.key"
                       closable
                       @close="removeRightById(scope.row, item3.id)"
-                      >{{ item3.authName }}
+                    >{{ item3.authName }}
                     </el-tag>
                   </el-col>
                 </el-row>
@@ -66,19 +67,19 @@
         <el-table-column label="角色描述" prop="roleDesc"></el-table-column>
         <el-table-column label="操作" prop="roleDesc">
           <!-- 作用域插槽: 是干嘛的来着? -->
-          <template style="display: flex">
+          <template style="display: flex" v-slot="scope">
             <el-button type="primary" icon="el-icon-edit" size="mini"
-              >编辑
+            >编辑
             </el-button>
             <el-button type="danger" icon="el-icon-delete" size="mini"
-              >删除
+            >删除
             </el-button>
             <el-button
               type="warning"
               icon="el-icon-setting"
               size="mini"
-              @click="showSetRightDialog"
-              >分配权限
+              @click="showSetRightDialog(scope.row)"
+            >分配权限
             </el-button>
           </template>
         </el-table-column>
@@ -89,12 +90,22 @@
       title="分配权限"
       :visible.sync="showSetRightDialogVisible"
       width="50%"
+      @close="setRightDialogClosed"
     >
-      <el-tree :data="rightsList" :props="treeProps" @node-click="handleNodeClick"></el-tree>
+      <el-tree
+        :data="rightsList"
+        :props="treeProps"
+        show-checkbox
+        node-key="id"
+        default-expand-all
+        :default-checked-keys="defaultKeys"
+        ref="treeRef"
+        @node-click="handleNodeClick"
+      ></el-tree>
       <span slot="footer" class="dialog-footer">
         <el-button @click="showSetRightDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="showSetRightDialogVisible = false"
-          >确 定</el-button
+        <el-button type="primary" @click="assignRights"
+        >确 定</el-button
         >
       </span>
     </el-dialog>
@@ -115,7 +126,10 @@ export default {
       treeProps: {
         label: 'authName',
         children: 'children'
-      }
+      },
+      // 默认选中的节点id数组
+      defaultKeys: [],
+      roleId: ''
     }
   },
   created () {
@@ -144,7 +158,7 @@ export default {
         return this.$message.info('取消删除')
       }
       const { data: res } = await this.$axios.delete(
-        `roles/${role.id}/rights/${rightId}`
+          `roles/${role.id}/rights/${rightId}`
       )
       if (res.meta.status !== 200) {
         return this.$message.error('删除权限失败!')
@@ -154,7 +168,8 @@ export default {
       // 所以我们应该做的是: 把删除后的数据直接赋值给role的children属性, 数据会动态响应到页面的.
       role.children = res.data
     },
-    async showSetRightDialog () {
+    async showSetRightDialog (role) {
+      this.roleId = role.id
       // 展示对话框之前, 获取所有数据:
       const { data: res } = await this.$axios.get('rights/tree')
       if (res.meta.status !== 200) {
@@ -162,27 +177,52 @@ export default {
       }
       // 把获取到的权限数据保存到data中
       this.rightsList = res.data
+      // 递归获取三级节点的id
+      this.getLeafKeys(role, this.defaultKeys)
       this.showSetRightDialogVisible = true
-    }
+    },
+    // 通过递归, 获取角色下所有三级权限的id, 并保存到defaultKeys中
+    getLeafKeys (node, arr) {
+      if (!node.children) {
+        return arr.push(node.id)
+      }
+      node.children.forEach(item => this.getLeafKeys(item, arr))
+    },
+    setRightDialogClosed () {
+      this.defaultKeys = []
+    },
+    // 为角色分配权限
+    async assignRights () {
+      const keys = [...this.$refs.treeRef.getCheckedKeys(), ...this.$refs.treeRef.getHalfCheckedKeys()]
+      const idSrt = keys.join(',')
+      const { data: res } = await this.$axios.post(`roles/${this.roleId}/rights`, { rids: idSrt })
+      if (res.meta.status !== 200) {
+        return this.$message.error('分配权限失败!')
+      }
+      this.$message.success('分配权限成功!')
+      this.getRolesList()
+      this.showSetRightDialogVisible = false
+    },
+    handleNodeClick () {}
   }
 }
 </script>
 
 <style scoped>
-.el-tag {
-  margin: 7px;
-}
+  .el-tag {
+    margin: 7px;
+  }
 
-.bdtop {
-  border-top: 1px solid #eee;
-}
+  .bdtop {
+    border-top: 1px solid #eee;
+  }
 
-.bdbottom {
-  border-bottom: 1px solid #eee;
-}
+  .bdbottom {
+    border-bottom: 1px solid #eee;
+  }
 
-.vcenter {
-  display: flex;
-  align-items: center;
-}
+  .vcenter {
+    display: flex;
+    align-items: center;
+  }
 </style>

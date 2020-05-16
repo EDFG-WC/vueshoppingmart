@@ -25,7 +25,8 @@
         </el-col>
         <el-col :span="4">
           <el-button type="primary" @click="addDialogVisible = true"
-            >添加用户</el-button
+          >添加用户
+          </el-button
           >
         </el-col>
       </el-row>
@@ -82,6 +83,7 @@
                 type="warning"
                 icon="el-icon-setting"
                 size="mini"
+                @click="setRole(scope.row)"
               ></el-button>
             </el-tooltip>
           </template>
@@ -159,6 +161,20 @@
         <el-button @click="editDialogVisible = false">取 消</el-button>
       </span>
     </el-dialog>
+
+    <!-- 分配角色的对话框 -->
+    <el-dialog
+      title="分配角色"
+      :visible.sync="setRoleDialogVisible"
+      width="50%"
+    >
+      <p>用户: {{userInfo.username}}</p>
+      <p>角色: {{userInfo.role_name}}</p>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -231,7 +247,11 @@ export default {
       // 添加表单的验证规则对象
       addFormRules: {
         username: [
-          { required: true, message: '请输入用户名', trigger: 'blur' },
+          {
+            required: true,
+            message: '请输入用户名',
+            trigger: 'blur'
+          },
           {
             min: 3,
             max: 10,
@@ -240,21 +260,33 @@ export default {
           }
         ],
         password: [
-          { required: true, message: '请输入密码', trigger: 'blur' },
+          {
+            required: true,
+            message: '请输入密码',
+            trigger: 'blur'
+          },
           {
             validator: validatePass,
             trigger: 'blur'
           }
         ],
         email: [
-          { required: true, message: '请输入邮箱', trigger: 'blur' },
+          {
+            required: true,
+            message: '请输入邮箱',
+            trigger: 'blur'
+          },
           {
             validator: validateEmail,
             trigger: 'blur'
           }
         ],
         mobile: [
-          { required: true, message: '请输入电话', trigger: 'blur' },
+          {
+            required: true,
+            message: '请输入电话',
+            trigger: 'blur'
+          },
           {
             validator: validateCellNo,
             trigger: 'blur'
@@ -263,20 +295,32 @@ export default {
       },
       editFormRules: {
         email: [
-          { required: true, message: '请输入邮箱', trigger: 'blur' },
+          {
+            required: true,
+            message: '请输入邮箱',
+            trigger: 'blur'
+          },
           {
             validator: validateEmail,
             trigger: 'blur'
           }
         ],
         mobile: [
-          { required: true, message: '请输入电话', trigger: 'blur' },
+          {
+            required: true,
+            message: '请输入电话',
+            trigger: 'blur'
+          },
           {
             validator: validateCellNo,
             trigger: 'blur'
           }
         ]
-      }
+      },
+      // 分配角色对话框的显示与隐藏
+      setRoleDialogVisible: false,
+      // 需要被分配角色的用户信息
+      userInfo: {}
     }
   },
   created () {
@@ -306,7 +350,7 @@ export default {
     // 监听switch开关状态的改变
     async userStateChange (userInfo) {
       const { data: res } = await this.$axios.put(
-        `users/${userInfo.id}/state/${userInfo.mg_state}`
+          `users/${userInfo.id}/state/${userInfo.mg_state}`
       )
       if (res.meta.status !== 200) {
         userInfo.mg_state = !userInfo.mg_state
@@ -359,7 +403,10 @@ export default {
         // 发送修改用户信息的网络请求
         const { data: res } = await this.$axios.put(
           'users/' + this.editForm.id,
-          { email: this.editForm.email, mobile: this.editForm.mobile }
+          {
+            email: this.editForm.email,
+            mobile: this.editForm.mobile
+          }
         )
         if (res.meta.status !== 200) {
           return this.$message.error('更新用户信息失败')
@@ -396,6 +443,11 @@ export default {
       }
       this.$message.success('删除用户成功!')
       this.getUserList()
+    },
+    setRole (userInfo) {
+      console.log(userInfo.toString())
+      this.userInfo = userInfo
+      this.setRoleDialogVisible = true
     }
   }
 }
