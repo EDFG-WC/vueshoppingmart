@@ -19,15 +19,13 @@
             <el-button
               slot="append"
               icon="el-icon-search"
-              @click="getUserList"
-            ></el-button>
+              @click="getUserList"></el-button>
           </el-input>
         </el-col>
         <el-col :span="4">
           <el-button type="primary" @click="addDialogVisible = true"
           >添加用户
-          </el-button
-          >
+          </el-button>
         </el-col>
       </el-row>
       <!-- 用户列表区 -->
@@ -168,11 +166,13 @@
       :visible.sync="setRoleDialogVisible"
       width="50%"
     >
-      <p>用户: {{userInfo.username}}</p>
-      <p>角色: {{userInfo.role_name}}</p>
+      <p>用户: {{ userInfo.username }}</p>
+      <p>角色: {{ userInfo.role_name }}</p>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+        <el-button type="primary" @click="dialogVisible = false"
+        >确 定</el-button
+        >
       </span>
     </el-dialog>
   </div>
@@ -350,7 +350,7 @@ export default {
     // 监听switch开关状态的改变
     async userStateChange (userInfo) {
       const { data: res } = await this.$axios.put(
-          `users/${userInfo.id}/state/${userInfo.mg_state}`
+        `users/${userInfo.id}/state/${userInfo.mg_state}`
       )
       if (res.meta.status !== 200) {
         userInfo.mg_state = !userInfo.mg_state
