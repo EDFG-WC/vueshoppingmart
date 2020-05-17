@@ -24,7 +24,11 @@
             >
               <!-- 渲染一级权限 -->
               <el-col :span="5">
-                <el-tag>{{ item1.authName }}</el-tag>
+                <el-tag
+                  closable
+                  @close="removeRightById(scope.row, item1.id)"
+                >{{ item1.authName }}
+                </el-tag>
                 <i class="el-icon-caret-right"></i>
               </el-col>
               <!-- 渲染二, 三级权限 -->
@@ -36,14 +40,14 @@
                   :class="[index2 === 0 ? '' : 'bdtop', 'vcenter']"
                 >
                   <!-- 二级权限 -->
+                  <!-- 二级权限和三级权限是在一个级别上, v-show可以一对一地让没有了3级节点的2级节点隐藏, 但这样不对, 应该是删除掉它才是动态响应! -->
                   <el-col :span="6">
                     <el-tag
                       type="success"
                       closable
                       @close="removeRightById(scope.row, item2.id)"
                     >{{ item2.authName }}
-                    </el-tag
-                    >
+                    </el-tag>
                     <i class="el-icon-caret-right"></i>
                   </el-col>
                   <!-- 三级权限 -->
@@ -104,9 +108,7 @@
       ></el-tree>
       <span slot="footer" class="dialog-footer">
         <el-button @click="showSetRightDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="assignRights"
-        >确 定</el-button
-        >
+        <el-button type="primary" @click="assignRights">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -136,14 +138,15 @@ export default {
     this.getRolesList()
   },
   methods: {
+    // 查询角色信息数据:
     async getRolesList () {
       const { data: res } = await this.$axios.get('roles')
       if (res.meta.status !== 200) {
         return this.$message.error('获取角色列表失败!')
       }
       this.rolesList = res.data
-      console.log(this.rolesList)
     },
+    // 根据id移除某个角色的某个权限:
     async removeRightById (role, rightId) {
       const confirmResult = await this.$confirm(
         '此操作将永久删除该文件, 是否继续?',
@@ -158,16 +161,18 @@ export default {
         return this.$message.info('取消删除')
       }
       const { data: res } = await this.$axios.delete(
-          `roles/${role.id}/rights/${rightId}`
+        `roles/${role.id}/rights/${rightId}`
       )
       if (res.meta.status !== 200) {
         return this.$message.error('删除权限失败!')
       }
       // 重新请求列表会导致整个页面刷新(页面会合上, 需要重新打开)
       // this.getRolesList()
-      // 所以我们应该做的是: 把删除后的数据直接赋值给role的children属性, 数据会动态响应到页面的.
-      role.children = res.data
+      // 所以我们应该做的是: 把删除后的数据直接赋值给role的children属性, 数据会动态响应到页面的(动态响应是非常重要的)
+      // todo 但这里出了个问题: 如果我删光一个权限下的子权限, 这父节点本身是不会消失的.
+      // role.children = res.data
     },
+    // 显示设置权限的对话框:
     async showSetRightDialog (role) {
       this.roleId = role.id
       // 展示对话框之前, 获取所有数据:
@@ -193,9 +198,16 @@ export default {
     },
     // 为角色分配权限
     async assignRights () {
-      const keys = [...this.$refs.treeRef.getCheckedKeys(), ...this.$refs.treeRef.getHalfCheckedKeys()]
+      const keys = [
+        ...this.$refs.treeRef.getCheckedKeys(),
+        ...this.$refs.treeRef.getHalfCheckedKeys()
+      ]
       const idSrt = keys.join(',')
-      const { data: res } = await this.$axios.post(`roles/${this.roleId}/rights`, { rids: idSrt })
+      const {
+        data: res
+      } = await this.$axios.post(`roles/${this.roleId}/rights`, {
+        rids: idSrt
+      })
       if (res.meta.status !== 200) {
         return this.$message.error('分配权限失败!')
       }
@@ -203,7 +215,8 @@ export default {
       this.getRolesList()
       this.showSetRightDialogVisible = false
     },
-    handleNodeClick () {}
+    handleNodeClick () {
+    }
   }
 }
 </script>
