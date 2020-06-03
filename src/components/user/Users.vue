@@ -169,8 +169,8 @@
       <p>用户: {{ userInfo.username }}</p>
       <p>角色: {{ userInfo.role_name }}</p>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogVisible = false"
+        <el-button @click="setRoleDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="setRoleDialogVisible = false"
         >确 定</el-button
         >
       </span>
