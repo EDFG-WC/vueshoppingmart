@@ -126,7 +126,9 @@ export default {
       rightsList: [],
       // 树形控件的绑定属性对象
       treeProps: {
+        // label: 指的是前端看得到是什么
         label: 'authName',
+        // children: 父子嵌套使用的是什么属性
         children: 'children'
       },
       // 默认选中的节点id数组
