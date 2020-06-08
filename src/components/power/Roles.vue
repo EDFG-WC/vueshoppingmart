@@ -195,6 +195,7 @@ export default {
       }
       node.children.forEach(item => this.getLeafKeys(item, arr))
     },
+    // 关闭权限对话框的时候把之前勾选的内容全部删掉
     setRightDialogClosed () {
       this.defaultKeys = []
     },
