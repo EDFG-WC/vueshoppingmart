@@ -133,6 +133,7 @@ export default {
       },
       // 默认选中的节点id数组
       defaultKeys: [],
+      // 即将分配角色权限的id
       roleId: ''
     }
   },
@@ -201,6 +202,7 @@ export default {
     },
     // 为角色分配权限
     async assignRights () {
+      // 获取选中节点和半选中节点: treeRef是el-tree组件的ref名
       const keys = [
         ...this.$refs.treeRef.getCheckedKeys(),
         ...this.$refs.treeRef.getHalfCheckedKeys()
