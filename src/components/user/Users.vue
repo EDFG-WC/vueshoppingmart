@@ -168,9 +168,20 @@
     >
       <p>用户: {{ userInfo.username }}</p>
       <p>角色: {{ userInfo.role_name }}</p>
+      <!-- 绑定的值虽然是id, 但显示的是label-->
+      <p>分配新角色:
+        <el-select v-model="selectedRoleId" placeholder="请选择">
+          <el-option
+            v-for="item in roleList"
+            :key="item.id"
+            :label="item.roleName"
+            :value="item.id">
+          </el-option>
+        </el-select>
+      </p>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogVisible = false"
+        <el-button @click="setRoleDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="setRoleDialogVisible = false"
         >确 定</el-button
         >
       </span>
@@ -320,7 +331,11 @@ export default {
       // 分配角色对话框的显示与隐藏
       setRoleDialogVisible: false,
       // 需要被分配角色的用户信息
-      userInfo: {}
+      userInfo: {},
+      // 用户的角色
+      roleList: [],
+      // 角色分配时选中的id:
+      selectedRoleId: ''
     }
   },
   created () {
@@ -444,9 +459,14 @@ export default {
       this.$message.success('删除用户成功!')
       this.getUserList()
     },
-    setRole (userInfo) {
+    async setRole (userInfo) {
       console.log(userInfo.toString())
       this.userInfo = userInfo
+      const { data: res } = await this.$axios.get('roles')
+      if (res.meta.status !== 200) {
+        return this.$message.error('获取角色列表失败!')
+      }
+      this.roleList = res.data
       this.setRoleDialogVisible = true
     }
   }

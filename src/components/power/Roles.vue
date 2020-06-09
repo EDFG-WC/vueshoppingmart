@@ -217,7 +217,7 @@ export default {
         return this.$message.error('分配权限失败!')
       }
       this.$message.success('分配权限成功!')
-      this.getRolesList()
+      await this.getRolesList()
       this.showSetRightDialogVisible = false
     },
     handleNodeClick () {
