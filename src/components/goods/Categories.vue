@@ -17,6 +17,10 @@
         <tree-table
           :data="cateList"
           :columns = "columns"
+          :selection-type="false"
+          :expand-type="false"
+          show-index
+          border
         ></tree-table>
         <!--分页-->
       </el-card>
